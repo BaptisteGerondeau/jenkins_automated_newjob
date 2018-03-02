@@ -1,0 +1,33 @@
+ - job:
+         name: jjb_build
+         description: "This is a job for building a Jenkins YAML job with JJB from a Git repo"
+         project-type: freestyle
+         block-downstream: false
+         auth-token: "TESTTOKEN"
+         parameters:
+                 - string:
+                         name: git_job_URL
+                         default: ''
+                         description: 'The git URL of the YAML job'
+                 - string:
+                         name: git_directory
+                         default: ''
+                         description: 'The git directory to clone the repo in'
+                 - string:
+                         name: git_branch
+                         default: 'master'
+                         description: 'The branch of the git repo to clone'
+                 - string:
+                         name: yamljob_name
+                         default: ''
+                         description: 'The name of the YAML job to push to Jenkins'
+         builders:
+                 - shell: |
+                         cd ${WORKSPACE}
+                         echo "This is the job's name : ${yamljob_name}"
+                         if [ -d ${git_directory} ]; then
+                                rm -r ${git_directory}
+                         fi
+                         git clone -b ${git_branch} ${git_job_URL} ${git_directory}
+                         cd ${git_directory}
+                         jenkins-jobs update ${yamljob_name}
